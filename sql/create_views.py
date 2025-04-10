@@ -25,12 +25,15 @@ def create_view_commands()->str:
 
         DROP VIEW IF EXISTS student_latest_attendance;
 
-        CREATE VIEW student_latest_attendance AS
+        CREATE VIEW student_attendance_with_month_year AS
         SELECT
-            s.student_id,
+            a.student_id,
             s.name,
-            (SELECT status FROM attendance WHERE student_id = s.student_id ORDER BY attendance_date DESC LIMIT 1) AS latest_attendance_status,
-            (SELECT attendance_date FROM attendance WHERE student_id = s.student_id ORDER BY attendance_date DESC LIMIT 1) AS latest_attendance_date
-        FROM students s;
+            a.attendance_date,
+            a.status,
+            YEAR(a.attendance_date) AS attendance_year,
+            MONTH(a.attendance_date) AS attendance_month
+        FROM attendance a
+        JOIN students s ON a.student_id = s.student_id;
     """
     return views_sql

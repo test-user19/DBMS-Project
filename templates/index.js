@@ -60,7 +60,7 @@ function switchReportTab(reportType) {
   document.getElementById('bulk-attendance-form').style.display = 'none';
   document.getElementById('attendance-summary').style.display = 'none';
   document.getElementById('average-performance').style.display = 'none';
-  document.getElementById('latest-attendance').style.display = 'none';
+  document.getElementById('monthly-view').style.display = 'none';
   console.log(content)
 
   if (reportType === 'students-list') {
@@ -84,10 +84,10 @@ function switchReportTab(reportType) {
     content.innerHTML = ''
     document.getElementById('average-performance').style.display = 'block';
     loadAveragePerformance();
-  } else if (reportType === 'latest-attendance') {
+  } else if (reportType === 'monthly-view') {
     content.innerHTML = ''
-    document.getElementById('latest-attendance').style.display = 'block';
-    loadLatestAttendance();
+    document.getElementById('monthly-view').style.display = 'block';
+    // loadLatestAttendance();
   }
 
   // Update active tab
@@ -101,13 +101,12 @@ function switchReportTab(reportType) {
 
 async function addStudent() {
   const name = document.getElementById('name').value;
-  const class_name = document.getElementById('class').value;
   const roll_number = document.getElementById('roll_number').value;
   const dob = document.getElementById('dob').value;
   const email = document.getElementById('email').value;
   const phone = document.getElementById('phone').value;
 
-  const data = { name, class: class_name, roll_number, dob, email, phone };
+  const data = { name, roll_number, dob, email, phone };
   const response = await fetch(`${API_BASE_URL}/students`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -174,20 +173,30 @@ async function addPerformance() {
 }
 
 async function loadStudents() {
-    const response = await fetch(`${API_BASE_URL}/students`);
-    const students = await response.json();
-    let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Class</th><th>Roll Number</th><th>Actions</th></tr></thead><tbody>';
-    students.forEach(student => {
-        html += `<tr>
+  const response = await fetch(`${API_BASE_URL}/students`);
+  const students = await response.json();
+  let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Roll Number</th><th>Actions</th></tr></thead><tbody>';
+  students.forEach(student => {
+    html += `<tr>
             <td>${student.student_id}</td>
             <td>${student.name}</td>
-            <td>${student.class}</td>
             <td>${student.roll_number}</td>
-            <td><button onclick="deleteStudent(${student.student_id})">Delete</button></td>
+            <td>
+          <button class="delete-btn" onclick="deleteStudent(${student.student_id})">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            Delete
+          </button>
+        </td>
         </tr>`;
-    });
-    html += '</tbody></table>';
-    document.getElementById('student-list').innerHTML = html;
+  });
+  html += '</tbody></table>';
+  document.getElementById('student-list').innerHTML = html;
 }
 
 async function loadAttendance() {
@@ -295,7 +304,7 @@ async function loadLatestAttendance() {
     html += `<tr><td>${item.student_id}</td><td>${item.name}</td><td>${item.latest_attendance_status || 'N/A'}</td><td>${item.latest_attendance_date || 'N/A'}</td></tr>`;
   });
   html += '</tbody></table>';
-  document.getElementById('latest-attendance').innerHTML = html;
+  document.getElementById('monthly-view').innerHTML = html;
 }
 async function deleteStudent(studentId) {
   if (confirm(`Are you sure you want to delete student with ID: ${studentId}?`)) {
@@ -312,3 +321,94 @@ async function deleteStudent(studentId) {
     }
   }
 }
+
+
+
+let currentDate = new Date();
+let presentDates = [];
+const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+function getDaysInMonth(year, month) {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+function getFirstDayOfMonth(year, month) {
+  return new Date(year, month, 1).getDay();
+}
+
+function navigateMonth(direction) {
+  if (direction === 'prev') {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+  } else {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+  }
+  loadMonthlyAttendance();
+}
+
+async function loadMonthlyAttendance() {
+  const studentId = document.getElementById('studentId').value;
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+
+  if (!studentId) {
+    alert('Please enter Student ID.');
+    return;
+  }
+
+  const attendanceData = {
+    studentId: parseInt(studentId),
+    month: month,
+    year: year
+  };
+
+  const response = await fetch(`${API_BASE_URL}/attendance/monthly`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(attendanceData)
+  });
+
+  const data = await response.json();
+  if (response.ok) {
+    presentDates = data.presentDates || [];
+    renderCalendar();
+  } else {
+    alert('Failed to load attendance data.');
+    presentDates = [];
+    renderCalendar();
+  }
+}
+
+function renderCalendar() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDayOfMonth = getFirstDayOfMonth(year, month);
+
+  document.getElementById('monthYear').textContent = `${months[month]} ${year}`;
+  const calendarEl = document.getElementById('calendar');
+  calendarEl.innerHTML = '';
+
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    const emptyDay = document.createElement('div');
+    emptyDay.className = 'empty';
+    calendarEl.appendChild(emptyDay);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dayEl = document.createElement('div');
+    dayEl.textContent = day;
+    if (presentDates.includes(dateString)) {
+      dayEl.className = 'present';
+    }
+    calendarEl.appendChild(dayEl);
+  }
+}
+
+// Initial render
+renderCalendar();

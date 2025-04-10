@@ -5,15 +5,14 @@ def create_procedure_commands()->str:
     
     CREATE PROCEDURE sp_add_new_student (
         IN in_name VARCHAR(100),
-        IN in_class VARCHAR(50),
         IN in_roll_number VARCHAR(20),
         IN in_dob DATE,
         IN in_email VARCHAR(100),
         IN in_phone_number VARCHAR(20)
     )
     BEGIN
-        INSERT INTO students (name, class, roll_number, date_of_birth, email, phone_number)
-        VALUES (in_name, in_class, in_roll_number, in_dob, in_email, in_phone_number);
+        INSERT INTO students (name, roll_number, date_of_birth, email, phone_number)
+        VALUES (in_name, in_roll_number, in_dob, in_email, in_phone_number);
     END;
     
     DROP PROCEDURE IF EXISTS sp_record_bulk_attendance;

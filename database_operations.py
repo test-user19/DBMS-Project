@@ -24,11 +24,11 @@ def create_database_if_not_exists():
             mydb.close()
 
 # Student Operations using Stored Procedure
-def add_student(name, class_name, roll_number, dob, email, phone):
+def add_student(name, roll_number, dob, email, phone):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.callproc('sp_add_new_student', [name, class_name, roll_number, dob, email, phone])
+        cursor.callproc('sp_add_new_student', [name, roll_number, dob, email, phone])
         conn.commit()
         # Fetch the last inserted ID (if needed, though the SP doesn't directly return it)
         cursor.execute("SELECT LAST_INSERT_ID()")
@@ -266,4 +266,27 @@ def get_student_latest_attendance():
         if conn.is_connected():
             cursor.close()
             conn.close()
-
+def get_student_monthly_attendance(student_id, month, year):
+    conn = get_connection()
+    cursor = conn.cursor()
+    present_dates = []
+    try:
+        query = """
+        SELECT attendance_date
+        FROM student_attendance_with_month_year
+        WHERE student_id = %s
+          AND attendance_year = %s
+          AND attendance_month = %s
+          AND status = 'present'
+        """
+        cursor.execute(query, (student_id, year, month))
+        results = cursor.fetchall()
+        for row in results:
+            present_dates.append(str(row[0]))  # Convert date object to string for JSON
+    except mysql.connector.Error as err:
+        print(f"Error fetching monthly attendance using view: {err}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+    return present_dates

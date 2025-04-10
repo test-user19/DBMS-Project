@@ -9,7 +9,6 @@ def create_table_commands()->str:
     CREATE TABLE IF NOT EXISTS students (
         student_id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        class VARCHAR(50),
         roll_number VARCHAR(20),
         date_of_birth DATE,
         email VARCHAR(100),

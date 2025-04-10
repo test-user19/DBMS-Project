@@ -8,7 +8,7 @@ from database_operations import (
     add_student, get_all_students, get_student_by_id, update_student, delete_student,
     record_bulk_attendance, get_attendance_by_date, get_attendance_by_student, update_attendance,
     add_performance, get_performance_by_student, get_all_performance,
-    get_student_attendance_summary, get_student_average_performance, get_student_latest_attendance,create_database_if_not_exists,
+    get_student_attendance_summary, get_student_average_performance, get_student_latest_attendance,create_database_if_not_exists,get_student_monthly_attendance,
     get_connection  # Import the get_connection function
 )
 import mysql.connector
@@ -69,7 +69,7 @@ def index():
 @app.route('/api/students', methods=['POST'])
 def create_student():
     data = request.get_json()
-    student_id = add_student(data['name'], data.get('class'), data.get('roll_number'), data.get('dob'), data.get('email'), data.get('phone'))
+    student_id = add_student(data['name'], data.get('roll_number'), data.get('dob'), data.get('email'), data.get('phone'))
     if student_id:
         return jsonify({'message': 'Student added successfully', 'student_id': student_id}), 201
     return jsonify({'error': 'Failed to add student'}), 500
@@ -83,12 +83,11 @@ def get_students():
             student_list.append({
                 'student_id': student[0],
                 'name': student[1],
-                'class': student[2],
-                'roll_number': student[3],
-                'date_of_birth': str(student[4]),
-                'email': student[5],
-                'phone_number': student[6],
-                'created_at': str(student[7])
+                'roll_number': student[2],
+                'date_of_birth': str(student[3]),
+                'email': student[4],
+                'phone_number': student[5],
+                'created_at': str(student[6])
             })
         return jsonify(student_list), 200
     return jsonify({'message': 'No students found'}), 200
@@ -271,5 +270,17 @@ def get_latest_attendance_view():
         return jsonify(attendance_list), 200
     return jsonify({'message': 'No latest attendance data found'}), 200
 
+@app.route('/api/attendance/monthly', methods=['POST'])
+def get_monthly_attendance():
+    data = request.get_json()
+    student_id = data.get('studentId')
+    month = data.get('month')
+    year = data.get('year')
+
+    if not student_id or not month or not year:
+        return jsonify({'error': 'Missing studentId, month, or year'}), 400
+
+    present_dates = get_student_monthly_attendance(student_id, month, year)
+    return jsonify({'presentDates': present_dates}), 200
 if __name__ == '__main__':
     app.run()

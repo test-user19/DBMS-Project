@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Attendance & Performance Tracker</title>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -167,6 +168,7 @@
     .tab {
       padding: 0.5rem 1rem;
       border-radius: 0.375rem;
+      border: none;
       cursor: pointer;
       font-weight: 500;
     }
@@ -202,8 +204,8 @@
       font-weight: 500;
     }
 
-    .form-group input,
-    .form-group select {
+    input,
+    select {
       padding: 0.5rem;
       border: 1px solid #d1d5db;
       border-radius: 0.375rem;
@@ -211,8 +213,8 @@
       transition: all 0.2s;
     }
 
-    .form-group input:focus,
-    .form-group select:focus {
+    input:focus,
+    select:focus {
       border-color: #4f46e5;
       box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
     }
@@ -252,6 +254,110 @@
 
     tbody tr:nth-child(even) {
       background-color: #f9f9f9;
+    }
+
+    .delete-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      color: #dc2626;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: #991b1b;
+    }
+
+    .calendar-container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    #monthYear {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 10px;
+    }
+
+    .calendar-weekdays div {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    #calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    #calendar div {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin: 2px;
+      cursor: pointer;
+    }
+
+    #calendar div.present {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #calendar div.empty {
+      background-color: transparent;
+      cursor: default;
+    }
+
+    #calendar div:not(.present):hover {
+      background-color: #f3f4f6;
+    }
+
+    .load-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .load-container label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    .load-container input[type="number"] {
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+
+    .arrow-button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
     }
   </style>
 </head>
@@ -338,12 +444,8 @@
                 <input type="text" id="name" required>
               </div>
               <div class="form-group">
-                <label for="class">Class</label>
-                <input type="text" id="class">
-              </div>
-              <div class="form-group">
                 <label for="roll_number">Roll Number</label>
-                <input type="text" id="roll_number">
+                <input type="text" id="roll_number" required>
               </div>
               <div class="form-group">
                 <label for="dob">Date of Birth</label>
@@ -351,11 +453,11 @@
               </div>
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email">
+                <input type="email" id="email" required>
               </div>
               <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="tel" id="phone">
+                <input type="tel" id="phone" required>
               </div>
             </div>
             <button type="submit" class="btn">Add Student</button>
@@ -433,7 +535,7 @@
             <button class="tab" onclick="switchReportTab('bulk-attendance')">Bulk Attendance</button>
             <button class="tab" onclick="switchReportTab('attendance-summary')">Attendance Summary</button>
             <button class="tab" onclick="switchReportTab('average-performance')">Average Performance</button>
-            <button class="tab" onclick="switchReportTab('latest-attendance')">Latest Attendance</button>
+            <button class="tab" onclick="switchReportTab('monthly-view')">Monthly Attendance</button>
           </div>
           <div id="reports-content" style="margin-top: 1.5rem;">
           </div>
@@ -455,7 +557,36 @@
           </div>
           <div id="average-performance">
           </div>
-          <div id="latest-attendance">
+          <div id="monthly-view">
+            <div class="calendar-container"style="margin: auto;">
+              <div class="load-container">
+                <label for="studentId">Student ID:</label>
+                <input type="number" id="studentId" placeholder="Enter Student ID">
+                <button class="btn" onclick="loadMonthlyAttendance()" >Load Attendance</button>
+              </div>
+              <div class="calendar-header">
+                <button onclick="navigateMonth('prev')" class="arrow-button">
+                  &lt;
+                </button>
+                <h2 id="monthYear"></h2>
+                <button onclick="navigateMonth('next')" class="arrow-button">
+                  &gt;
+                </button>
+              </div>
+
+
+              <div class="calendar-weekdays">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+              </div>
+
+              <div id="calendar"></div>
+            </div>
           </div>
         </div>
       </div>
