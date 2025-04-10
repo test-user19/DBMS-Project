@@ -1,0 +1,5 @@
+.venv/
+venv
+.git
+.DS_Store
+*pycache*/

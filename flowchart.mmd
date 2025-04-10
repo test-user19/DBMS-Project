@@ -1,0 +1,96 @@
+
+flowchart TD
+    Start([Start]) --> A[Landing Page]
+    A --> B[Navigate to Dashboard]
+
+    %% Main Sections
+    B --> C{Select Section}
+    C -->|Students| D[Students]
+    C -->|Attendance| E[Attendance]
+    C -->|Performance| F[Performance]
+    C -->|Reports| G[Reports]
+
+    %% Students Section
+    D --> H{Action?}
+    H -->|Add| I[Add Student
+        - Input: Name, Class, Roll
+        - Call add_student → sp_add_new_student]
+    H -->|View| J[View List
+        - Call get_all_students → SELECT students]
+    I --> S1[Success: Students]
+    J --> S1
+    I -->|Fail| E1[Error: Add Failed]
+    J -->|Fail| E1[Error: View Failed]
+    S1 --> K[Done]
+    E1 --> K
+
+    %% Attendance Section
+    E --> L{Action?}
+    L -->|Mark| M[Mark Attendance
+        - Input: ID, Date, Status
+        - Call record_single_attendance → sp_record_bulk_attendance]
+    L -->|Bulk| N[Bulk Attendance
+        - Select Date, Mark Status
+        - Call record_bulk_attendance → sp_record_bulk_attendance]
+    L -->|Report| O[View Report
+        - Prompt Date
+        - Call get_attendance_by_date → SELECT attendance join students]
+    L -->|Summary| P[View Summary
+        - Call get_student_attendance_summary → student_attendance_summary view]
+    L -->|Latest| Q[View Latest
+        - Call get_student_latest_attendance → student_latest_attendance view]
+    M --> S2[Success: Attendance]
+    N --> S2
+    O --> S2
+    P --> S2
+    Q --> S2
+    M -->|Fail| E2[Error: Mark Failed]
+    N -->|Fail| E2[Error: Bulk Failed]
+    O -->|Fail| E2[Error: Report Failed]
+    P -->|Fail| E2[Error: Summary Failed]
+    Q -->|Fail| E2[Error: Latest Failed]
+    S2 --> R[Done]
+    E2 --> R
+
+    %% Performance Section
+    F --> S{Action?}
+    S -->|Add| T[Add Performance
+        - Input: ID, Subject, Date, Marks
+        - Call add_performance → sp_update_student_performance]
+    S -->|Report| U[View Report
+        - Prompt ID
+        - Call get_performance_by_student → SELECT performance]
+    S -->|Average| V[View Average
+        - Call get_student_average_performance → student_average_performance view]
+    T --> S3[Success: Performance]
+    U --> S3
+    V --> S3
+    T -->|Fail| E3[Error: Add Failed]
+    U -->|Fail| E3[Error: Report Failed]
+    V -->|Fail| E3[Error: Average Failed]
+    S3 --> W[Done]
+    E3 --> W
+
+    %% Reports Section
+    G --> X[Reports
+        - Uses views: student_attendance_summary, student_average_performance, student_latest_attendance
+        - Triggers update summary data]
+    X --> Y{Action?}
+    Y -->|Students| Z[Students List
+        - Call get_all_students → SELECT students]
+    Y -->|Attendance| AA[Attendance Report
+        - Call get_attendance_by_date → SELECT attendance join students]
+    Z --> S4[Success: Reports]
+    AA --> S4
+    Z -->|Fail| E4[Error: Students Failed]
+    AA -->|Fail| E4[Error: Attendance Failed]
+    S4 --> AE[Done]
+    E4 --> AE
+
+    %% STANDALONE TRIGGERS SECTION
+    subgraph Triggers [Database Triggers]
+        TG1[tr_set_default_grade<br>Before INSERT on performance<br>Auto-assign grade based on marks]
+        TG2[tr_prevent_future_attendance<br>Before INSERT on attendance<br>Blocks future-dated attendance]
+        TG3[tr_log_student_deletion<br>Before DELETE on students<br>Logs student info into audit table]
+    end
+

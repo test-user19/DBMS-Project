@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Attendance & Performance Tracker</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: #f9fafb;
+    }
+
+    .navbar {
+      background-color: white;
+      padding: 1rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .navbar-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #4f46e5;
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #4b5563;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover {
+      color: #111827;
+      background-color: #f3f4f6;
+    }
+
+    .btn {
+      background-color: #4f46e5;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #4338ca;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 0;
+    }
+
+    .hero h1 {
+      font-size: 3.75rem;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 span {
+      color: #4f46e5;
+      display: block;
+    }
+
+    .hero p {
+      color: #6b7280;
+      font-size: 1.25rem;
+      max-width: 48rem;
+      margin: 0 auto;
+    }
+
+    .features {
+      padding: 4rem 0;
+    }
+
+    .features h2 {
+      text-align: center;
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 3rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .feature-icon {
+      background-color: white;
+      width: 4rem;
+      height: 4rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card h3 {
+      color: #111827;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      color: #6b7280;
+    }
+
+    .dashboard {
+      display: none;
+      padding: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      background-color: #4f46e5;
+      color: white;
+    }
+
+    .form-container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      color: #374151;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
+    .landing {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    /* Styles for tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    thead {
+      background-color: #f2f2f2;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div class="logo">
+        <i data-lucide="graduation-cap"></i>
+        <span>Studia</span>
+      </div>
+      <div class="nav-links">
+      </div>
+    </div>
+  </nav>
+
+  <div class="landing" id="landing">
+    <div class="container">
+      <div class="hero">
+        <h1>
+          Track Student Progress
+          <span>With Confidence</span>
+        </h1>
+        <p>
+          Streamline attendance tracking, monitor performance, and generate insightful reports - all in one place.
+        </p>
+        <div style="margin-top: 2rem;">
+          <button class="btn" onclick="showDashboard()">Get Started</button>
+        </div>
+      </div>
+
+      <div class="features" id="features">
+        <h2>Everything you need to manage your classroom</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i data-lucide="users"></i>
+            </div>
+            <h3>Student Management</h3>
+            <p>Easily add and manage student profiles with comprehensive information.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i data-lucide="calendar"></i>
+            </div>
+            <h3>Attendance Tracking</h3>
+            <p>Track daily attendance with bulk marking capabilities.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i data-lucide="award"></i>
+            </div>
+            <h3>Performance Monitoring</h3>
+            <p>Record and analyze student performance across subjects.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i data-lucide="bar-chart-3"></i>
+            </div>
+            <h3>Insightful Reports</h3>
+            <p>Generate detailed reports for better decision making.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div class="container">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('students')">Students</button>
+        <button class="tab" onclick="switchTab('attendance')">Attendance</button>
+        <button class="tab" onclick="switchTab('performance')">Performance</button>
+        <button class="tab" onclick="switchTab('reports')">Reports</button>
+      </div>
+
+      <div class="form-container">
+        <div id="students-form">
+          <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Add New Student</h2>
+          <form onsubmit="event.preventDefault(); handleStudentSubmit()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+              </div>
+              <div class="form-group">
+                <label for="class">Class</label>
+                <input type="text" id="class">
+              </div>
+              <div class="form-group">
+                <label for="roll_number">Roll Number</label>
+                <input type="text" id="roll_number">
+              </div>
+              <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob">
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email">
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone">
+              </div>
+            </div>
+            <button type="submit" class="btn">Add Student</button>
+          </form>
+        </div>
+
+        <div id="attendance-form" style="display: none;">
+          <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Mark Attendance</h2>
+          <form onsubmit="event.preventDefault(); handleAttendanceSubmit()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="student_id_attendance">Student ID</label>
+                <input type="number" id="student_id_attendance" required>
+              </div>
+              <div class="form-group">
+                <label for="attendance_date">Date</label>
+                <input type="date" id="attendance_date" required>
+              </div>
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status">
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Late">Late</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="attendance_notes">Notes</label>
+                <input type="text" id="attendance_notes">
+              </div>
+            </div>
+            <button type="submit" class="btn">Mark Attendance</button>
+          </form>
+        </div>
+
+        <div id="performance-form" style="display: none;">
+          <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Add Performance</h2>
+          <form onsubmit="event.preventDefault(); handlePerformanceSubmit()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="student_id_performance">Student ID</label>
+                <input type="number" id="student_id_performance" required>
+              </div>
+              <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" required>
+              </div>
+              <div class="form-group">
+                <label for="exam_date">Exam Date</label>
+                <input type="date" id="exam_date">
+              </div>
+              <div class="form-group">
+                <label for="marks">Marks</label>
+                <input type="number" id="marks">
+              </div>
+              <!-- <div class="form-group"> -->
+              <!--   <label for="grade">Grade</label> -->
+              <!--   <input type="text" id="grade"> -->
+              <!-- </div> -->
+              <div class="form-group">
+                <label for="performance_notes">Notes</label>
+                <input type="text" id="performance_notes">
+              </div>
+            </div>
+            <button type="submit" class="btn">Add Performance</button>
+          </form>
+        </div>
+
+        <div id="reports-section" style="display: none;">
+          <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Reports</h2>
+          <div class="tabs">
+            <button class="tab active" onclick="switchReportTab('students-list')">Students List</button>
+            <button class="tab" onclick="switchReportTab('attendance-report')">Attendance Report</button>
+            <button class="tab" onclick="switchReportTab('performance-report')">Performance Report</button>
+            <button class="tab" onclick="switchReportTab('bulk-attendance')">Bulk Attendance</button>
+            <button class="tab" onclick="switchReportTab('attendance-summary')">Attendance Summary</button>
+            <button class="tab" onclick="switchReportTab('average-performance')">Average Performance</button>
+            <button class="tab" onclick="switchReportTab('latest-attendance')">Latest Attendance</button>
+          </div>
+          <div id="reports-content" style="margin-top: 1.5rem;">
+          </div>
+          <div id="bulk-attendance-form" style="margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">Bulk Attendance</h3>
+            <label for="bulk_attendance_date">Date:</label>
+            <input type="date" id="bulk_attendance_date">
+            <button onclick="prepareBulkAttendance()" class="btn" style="margin-top: 0.5rem;">Prepare Form</button>
+            <div id="bulk-attendance-form-content">
+            </div>
+          </div>
+          <div id="student-list">
+          </div>
+          <div id="attendance-report">
+          </div>
+          <div id="performance-report">
+          </div>
+          <div id="attendance-summary">
+          </div>
+          <div id="average-performance">
+          </div>
+          <div id="latest-attendance">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+
+</html>
