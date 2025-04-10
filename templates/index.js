@@ -1,7 +1,7 @@
 // Initialize Lucide icons
 lucide.createIcons();
 
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
+const API_BASE_URL = process.env.API_URL?process.env.API_URL:'http://127.0.0.1:5000/api';
 
 // Show dashboard
 function showDashboard() {

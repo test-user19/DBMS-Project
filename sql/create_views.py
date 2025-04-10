@@ -23,7 +23,7 @@ def create_view_commands()->str:
         LEFT JOIN performance p ON s.student_id = p.student_id
         GROUP BY s.student_id, s.name;
 
-        DROP VIEW IF EXISTS student_latest_attendance;
+        DROP VIEW IF EXISTS student_attendance_with_month_year;
 
         CREATE VIEW student_attendance_with_month_year AS
         SELECT
