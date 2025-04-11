@@ -283,4 +283,5 @@ def get_monthly_attendance():
     present_dates = get_student_monthly_attendance(student_id, month, year)
     return jsonify({'presentDates': present_dates}), 200
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get('PORT', 8000))
+    app.run(host='0.0.0.0', port=port, debug=False)

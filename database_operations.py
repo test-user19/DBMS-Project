@@ -1,9 +1,9 @@
 import mysql.connector
-from db_config import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, PORT
+from db_config import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT
 import json  # Import the json library
 
 def get_connection():
-    return mysql.connector.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME,port=PORT)
+    return mysql.connector.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME,port=DB_PORT)
 
 def create_database_if_not_exists():
     try:
@@ -11,7 +11,7 @@ def create_database_if_not_exists():
             host=DB_HOST,
             user=DB_USER,
             password=DB_PASSWORD,
-            port=PORT
+            port=DB_PORT
         )
         mycursor = mydb.cursor()
         mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")

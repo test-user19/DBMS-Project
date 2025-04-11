@@ -92,8 +92,10 @@ function switchReportTab(reportType) {
 
   // Update active tab
   const tabs = document.querySelectorAll('#reports-section .tabs .tab');
+  console.log(tabs)
   tabs.forEach(t => t.classList.remove('active'));
   const clickedTab = Array.from(tabs).find(tab => tab.textContent.toLowerCase().replace(' ', '-') === reportType);
+  console.log(clickedTab)
   if (clickedTab) {
     clickedTab.classList.add('active');
   }
@@ -175,9 +177,14 @@ async function addPerformance() {
 async function loadStudents() {
   const response = await fetch(`${API_BASE_URL}/students`);
   const students = await response.json();
-  let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Roll Number</th><th>Actions</th></tr></thead><tbody>';
-  students.forEach(student => {
-    html += `<tr>
+  console.log(students)
+  if(students.message){
+    document.getElementById('student-list').innerHTML = '';
+  }
+  else  {
+    let html = '<table><thead><tr><th>ID</th><th>Name</th><th>Roll Number</th><th>Actions</th></tr></thead><tbody>';
+    students.forEach(student => {
+      html += `<tr>
             <td>${student.student_id}</td>
             <td>${student.name}</td>
             <td>${student.roll_number}</td>
@@ -194,9 +201,10 @@ async function loadStudents() {
           </button>
         </td>
         </tr>`;
-  });
-  html += '</tbody></table>';
-  document.getElementById('student-list').innerHTML = html;
+    });
+    html += '</tbody></table>';
+    document.getElementById('student-list').innerHTML = html;
+  }
 }
 
 async function loadAttendance() {
