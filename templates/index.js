@@ -1,7 +1,7 @@
 // Initialize Lucide icons
 lucide.createIcons();
 
-const API_BASE_URL = "https://studia-h9ak.onrender.com/api";
+const API_BASE_URL = "http://localhost:8000/api";
 
 // Show dashboard
 function showDashboard() {
