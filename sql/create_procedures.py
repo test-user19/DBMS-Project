@@ -32,7 +32,7 @@ def create_procedure_commands()->str:
         DROP TEMPORARY TABLE IF EXISTS temp_attendance_data;
         
         CREATE TEMPORARY TABLE temp_attendance_data (
-            student_id INT,
+            student_id INT PRIMARY KEY,
             status VARCHAR(10),
             notes VARCHAR(255)
         );
